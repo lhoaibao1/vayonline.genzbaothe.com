@@ -11,18 +11,21 @@ $startAmount = $showCalc ? min($maxAmount, max($minAmount, 30_000_000)) : 0;
 <section class="hero">
   <div class="wrap hero__in <?= $showCalc ? '' : 'hero__in--solo' ?>">
     <div class="hero__copy">
-      <h1><?= e($landing['headline']) ?></h1>
+      <p class="hero__kicker"><b aria-hidden="true"></b><?= count($offers) ?> gói đang nhận hồ sơ hôm nay</p>
+      <h1><?= headline_html($landing['headline']) ?></h1>
       <?php if ($landing['subheadline']): ?><p class="hero__sub"><?= e($landing['subheadline']) ?></p><?php endif; ?>
-      <ul class="hero__facts">
-        <li><strong><?= count($offers) ?> gói</strong> từ đối tác được cấp phép</li>
-        <li><strong>2 phút</strong> điền thông tin</li>
-        <li><strong>0đ</strong> phí đăng ký</li>
-      </ul>
+      <div class="chips">
+        <?php if ($hasLoan): ?><a class="chip chip--violet" href="#goi" data-go-filter="loan"><span aria-hidden="true">💸</span>Vay nhanh</a><?php endif; ?>
+        <?php if ($hasCard): ?><a class="chip chip--pink" href="#goi" data-go-filter="card"><span aria-hidden="true">💳</span>Thẻ tín dụng</a><?php endif; ?>
+        <a class="chip chip--mint" href="#cach-dang-ky"><span aria-hidden="true">⚡</span>Duyệt từ 15 phút</a>
+      </div>
       <?php if (!$showCalc): ?><a class="btn btn--gold btn--lg" href="#goi">Xem và so sánh các gói</a><?php endif; ?>
     </div>
 
     <?php if ($showCalc): ?>
     <form class="calc" id="calc" aria-label="Tính khoản vay" onsubmit="return false">
+      <span class="sticker sticker--a" aria-hidden="true">0đ phí đăng ký</span>
+      <span class="sticker sticker--b" aria-hidden="true">Chỉ cần CCCD 🪪</span>
       <label class="calc__label" for="calc-amount">Bạn cần bao nhiêu?</label>
       <output class="calc__amount" id="calc-amount-out" for="calc-amount"><?= number_format($startAmount, 0, ',', '.') ?><span>đ</span></output>
       <input class="calc__range" id="calc-amount" type="range" name="amount"
@@ -50,7 +53,7 @@ $startAmount = $showCalc ? min($maxAmount, max($minAmount, 30_000_000)) : 0;
 <section class="offers" id="goi">
   <div class="wrap">
     <div class="offers__head">
-      <h2>So sánh các gói</h2>
+      <div><h2 class="sec-title">Chọn gói hợp với bạn</h2><p class="sec-sub">Lãi suất, hạn mức, thời gian duyệt đặt cạnh nhau cho dễ so.</p></div>
       <?php if ($hasLoan && $hasCard): ?>
       <div class="tabs" role="tablist" aria-label="Lọc theo loại">
         <button role="tab" aria-selected="true" data-filter="all">Tất cả</button>
@@ -72,7 +75,7 @@ $startAmount = $showCalc ? min($maxAmount, max($minAmount, 30_000_000)) : 0;
 
 <section class="steps" id="cach-dang-ky">
   <div class="wrap">
-    <h2>Đăng ký diễn ra thế nào</h2>
+    <h2 class="sec-title">3 bước là xong</h2>
     <ol class="steps__list">
       <li><h3>Chọn gói</h3><p>So sánh hạn mức, lãi suất và thời gian duyệt. Bấm “Đăng ký” ở gói bạn thấy hợp.</p></li>
       <li><h3>Để lại thông tin</h3><p>Họ tên và số điện thoại là đủ. Bạn được chuyển sang trang đối tác để hoàn tất hồ sơ.</p></li>
@@ -85,7 +88,7 @@ $startAmount = $showCalc ? min($maxAmount, max($minAmount, 30_000_000)) : 0;
 <?php if ($faq): ?>
 <section class="faq" id="hoi-dap">
   <div class="wrap faq__in">
-    <h2>Câu hỏi thường gặp</h2>
+    <h2 class="sec-title">Hỏi nhanh, đáp gọn</h2>
     <div class="faq__list">
       <?php foreach ($faq as [$qq, $aa]): ?>
         <details><summary><?= e($qq) ?></summary><p><?= e($aa) ?></p></details>

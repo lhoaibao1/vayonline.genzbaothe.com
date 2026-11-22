@@ -223,7 +223,7 @@ function seed(PDO $pdo): void
     }
 
     $pdo->prepare('INSERT INTO landings (slug, name, headline, subheadline, offer_type, offer_ids, show_calculator, seo_title, seo_description, is_default, active, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,1,?,?)')
-        ->execute(['trang-chu', 'Trang chủ', 'Chọn khoản vay hoặc thẻ tín dụng hợp với bạn', 'Nhập số tiền cần vay để xem các gói phù hợp. Đăng ký một lần, đối tác sẽ liên hệ trong ngày.', 'all', '', 1, 'Vay Online – So sánh khoản vay và thẻ tín dụng', 'So sánh lãi suất, hạn mức các khoản vay tiêu dùng và thẻ tín dụng. Đăng ký online trong 2 phút.', 1, $now, $now]);
+        ->execute(['trang-chu', 'Trang chủ', 'Cần tiền gấp? *Chọn gói, duyệt liền.*', 'Kéo thanh chọn số tiền, xem ngay mỗi tháng trả bao nhiêu. Đăng ký 2 phút, đối tác gọi lại trong ngày.', 'all', '', 1, 'Vay Online – So sánh khoản vay và thẻ tín dụng', 'So sánh lãi suất, hạn mức các khoản vay tiêu dùng và thẻ tín dụng. Đăng ký online trong 2 phút.', 1, $now, $now]);
     $pdo->prepare('INSERT INTO landings (slug, name, headline, subheadline, offer_type, offer_ids, show_calculator, seo_title, seo_description, is_default, active, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,1,?,?)')
-        ->execute(['mo-the-tin-dung', 'Chiến dịch thẻ tín dụng', 'Mở thẻ tín dụng online, miễn lãi đến 55 ngày', 'So sánh ưu đãi hoàn tiền, phí thường niên và chọn thẻ hợp thói quen chi tiêu của bạn.', 'card', '', 0, 'Mở thẻ tín dụng online', 'So sánh thẻ tín dụng hoàn tiền, du lịch. Mở thẻ online.', 0, $now, $now]);
+        ->execute(['mo-the-tin-dung', 'Chiến dịch thẻ tín dụng', 'Mở thẻ online, *miễn lãi 55 ngày*', 'So sánh ưu đãi hoàn tiền, phí thường niên và chọn thẻ hợp thói quen chi tiêu của bạn.', 'card', '', 0, 'Mở thẻ tín dụng online', 'So sánh thẻ tín dụng hoàn tiền, du lịch. Mở thẻ online.', 0, $now, $now]);
 }

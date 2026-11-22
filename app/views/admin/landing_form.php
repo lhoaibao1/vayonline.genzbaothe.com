@@ -13,7 +13,7 @@ $actions = '<a class="b b--ghost" href="/admin/landings">Quay lại danh sách</
         <label class="f"><span>Tên nội bộ (dùng trong báo cáo)</span><input name="name" value="<?= e($l['name']) ?>" required placeholder="Ví dụ: FB – Vay nhanh tháng 11"><?= $err('name') ?></label>
         <label class="f"><span>Đường dẫn</span><input name="slug" value="<?= e($l['slug']) ?>" placeholder="tự tạo từ tên"><?= $err('slug') ?><small class="hint">/lp/<?= e($l['slug'] ?: '...') ?></small></label>
       </div>
-      <label class="f"><span>Tiêu đề chính (H1)</span><input name="headline" value="<?= e($l['headline']) ?>" required maxlength="120"><?= $err('headline') ?></label>
+      <label class="f"><span>Tiêu đề chính (H1)</span><input name="headline" value="<?= e($l['headline']) ?>" required maxlength="120"><?= $err('headline') ?><small class="hint">Đặt cụm muốn tô nổi bật trong *dấu sao*, ví dụ: Cần tiền gấp? *Chọn gói, duyệt liền.*</small></label>
       <label class="f"><span>Mô tả dưới tiêu đề</span><textarea name="subheadline" rows="2" maxlength="300"><?= e($l['subheadline']) ?></textarea></label>
       <label class="sw"><input type="checkbox" name="show_calculator" value="1" <?= $l['show_calculator'] ? 'checked' : '' ?>><span>Hiện công cụ tính khoản vay (chỉ khi landing có gói vay)</span></label>
     </section>

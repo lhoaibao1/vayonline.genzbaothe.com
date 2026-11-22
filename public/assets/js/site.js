@@ -78,6 +78,14 @@
     });
   });
 
+  // Chip ở hero: chuyển tab rồi cuộn tới danh sách
+  $$('[data-go-filter]').forEach(function (a) {
+    a.addEventListener('click', function () {
+      var t = $('.tabs [data-filter="' + a.dataset.goFilter + '"]');
+      if (t) t.click();
+    });
+  });
+
   /* ---------- Hộp đăng ký ---------- */
   var dlg = $('#dang-ky');
   var form = $('#regform');

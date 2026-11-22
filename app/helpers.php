@@ -146,6 +146,12 @@ function money_range(int|float|null $min, int|float|null $max): string
     return $a . ' – ' . $b;
 }
 
+/** Tiêu đề: phần đặt trong *dấu sao* được tô highlight */
+function headline_html(?string $text): string
+{
+    return preg_replace('/\*([^*]+)\*/u', '<mark>$1</mark>', e($text));
+}
+
 function normalize_phone(string $p): ?string
 {
     $p = preg_replace('/\D+/', '', $p);
