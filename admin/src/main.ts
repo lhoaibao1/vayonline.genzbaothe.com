@@ -24,6 +24,8 @@ const router = createRouter({
     { path: '/landings', component: v('Landings'), meta: { perm: 'landings', title: 'Landing page' } },
     { path: '/landings/new', component: v('LandingForm'), meta: { perm: 'landings', title: 'Tạo landing' } },
     { path: '/landings/:id(\\d+)', component: v('LandingForm'), meta: { perm: 'landings' } },
+    { path: '/data-requests', component: v('DataRequests'), meta: { perm: 'leads.view', title: 'Yêu cầu dữ liệu cá nhân' } },
+    { path: '/pages', component: v('Pages'), meta: { perm: 'settings', title: 'Trang chính sách' } },
     { path: '/users', component: v('Users'), meta: { perm: 'admins', title: 'Tài khoản quản trị' } },
     { path: '/settings', component: v('Settings'), meta: { perm: 'settings', title: 'Cài đặt website' } },
     { path: '/profile', component: v('Profile'), meta: { title: 'Tài khoản của tôi' } },

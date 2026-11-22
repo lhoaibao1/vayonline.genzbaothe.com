@@ -39,8 +39,15 @@ const zalo = computed(() => (site.value?.zalo || '').replace(/\D/g, ''))
           </ul>
         </div>
       </div>
+      <nav class="wrap footer__links" aria-label="Chính sách">
+        <NuxtLink v-for="p in site?.pages" :key="p.slug" :to="`/${p.slug}`">{{ p.title }}</NuxtLink>
+        <NuxtLink to="/yeu-cau-du-lieu">Yêu cầu về dữ liệu cá nhân</NuxtLink>
+      </nav>
       <div class="wrap footer__legal">
         <p>{{ site?.disclaimer }}</p>
+        <p v-if="site?.company_name">
+          {{ site.company_name }}<template v-if="site.tax_code"> · Mã số doanh nghiệp {{ site.tax_code }}</template><template v-if="site.company_address"> · {{ site.company_address }}</template>
+        </p>
         <p>© {{ new Date().getFullYear() }} {{ site?.site_name }}</p>
       </div>
     </footer>

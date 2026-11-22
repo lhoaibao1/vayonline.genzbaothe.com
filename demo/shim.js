@@ -5,8 +5,8 @@
   'use strict';
   var F = window.__DEMO_FIXTURES__;
   var KEY = 'genz-demo-v1';
-  var S = { added: [], patch: {}, deleted: {} };
-  try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved) S = saved; } catch (e) { /* không có bộ nhớ: chạy bình thường */ }
+  var S = { added: [], patch: {}, deleted: {}, requests: [], reqPatch: {}, anon: {} };
+  try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved) S = Object.assign(S, saved); } catch (e) { /* không có bộ nhớ: chạy bình thường */ }
   function persist() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* bỏ qua */ } }
 
   function json(data, status) {
@@ -17,12 +17,19 @@
   function allLeads() {
     return F.leads.concat(S.added)
       .filter(function (l) { return !S.deleted[l.id]; })
-      .map(function (l) { return Object.assign({}, l, S.patch[l.id] || {}); })
+      .map(function (l) { return anonLead(Object.assign({}, l, S.patch[l.id] || {})); })
       .sort(function (a, b) { return b.id - a.id; });
+  }
+  // Ẩn danh hoá trong bản demo
+  function anonLead(l) {
+    if (!S.anon[l.customer_id]) return l;
+    return Object.assign(l, { full_name: 'Đã ẩn danh', phone: '', email: '', birth_year: 0, note: '', ip: '', user_agent: '', referrer: '', anonymized_at: S.anon[l.customer_id] });
   }
   function customersById() {
     var map = {};
-    F.customers.forEach(function (c) { map[c.id] = c; });
+    F.customers.forEach(function (c) {
+      map[c.id] = S.anon[c.id] ? Object.assign({}, c, { full_name: 'Đã ẩn danh', phone: 'an-' + c.id, email: '', birth_year: null, province: '', occupation: '', income: '', note: '', anonymized_at: S.anon[c.id] }) : c;
+    });
     S.added.forEach(function (l) {
       if (!map[l.customer_id]) map[l.customer_id] = { id: l.customer_id, full_name: l.full_name, phone: l.phone, email: l.email, birth_year: l.birth_year,
         province: l.province, occupation: l.occupation, income: l.income, note: '', created_at: l.created_at, updated_at: l.created_at };
@@ -75,6 +82,8 @@
       has_card: b.has_card || '', card_need: b.card_need || '', status: 'new', note: '',
       utm_source: b.utm_source || '', utm_medium: b.utm_medium || '', utm_campaign: b.utm_campaign || '', utm_content: b.utm_content || '',
       referrer: b.referrer || '', ip: '(bản demo)', user_agent: navigator.userAgent, clicked_out_at: null, created_at: new Date().toISOString(),
+      consent_at: new Date().toISOString(), anonymized_at: null,
+      consent_versions: F.pages_admin.map(function (p) { return p.slug + '@v' + p.version; }).join(','),
     };
     S.added.push(lead);
     persist();
@@ -93,6 +102,21 @@
     if ((m = p.match(/^\/api\/public\/module\/(loan|card)$/))) return json(F.module[m[1]]);
     if ((m = p.match(/^\/api\/public\/offers\/([^/]+)$/))) return F.offer_public[m[1]] ? json(F.offer_public[m[1]]) : err('Gói này không còn nhận đăng ký.', 404);
     if (p === '/api/public/register') return register(body || {});
+    if ((m = p.match(/^\/api\/public\/pages\/([^/]+)$/))) return F.pages[m[1]] ? json(F.pages[m[1]]) : err('Không tìm thấy trang này.', 404);
+    if (p === '/api/public/data-requests') {
+      var b2 = body || {}, ph = String(b2.phone || '').replace(/\D/g, '').replace(/^84/, '0'), e2 = {};
+      if (!b2.type) e2.type = 'Chọn loại yêu cầu.';
+      if (!b2.full_name || b2.full_name.trim().length < 2) e2.full_name = 'Nhập họ tên đã dùng khi đăng ký.';
+      if (!/^0[35789]\d{8}$/.test(ph)) e2.phone = 'Nhập số điện thoại đã dùng khi đăng ký (10 số).';
+      if (Object.keys(e2).length) return err('Kiểm tra lại các ô được đánh dấu.', 422, e2);
+      var cust = null, cm = customersById();
+      Object.keys(cm).forEach(function (k) { if (cm[k].phone === ph) cust = cm[k]; });
+      var rid = 1 + Math.max.apply(null, F.data_requests.items.concat(S.requests).map(function (r) { return r.id; }).concat([0]));
+      S.requests.push({ id: rid, type: b2.type, full_name: b2.full_name, phone: ph, email: b2.email || '', content: b2.content || '', customer_id: cust ? cust.id : null,
+        status: 'new', note: '', handled_by_name: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+      persist();
+      return json({ ok: true, code: 'YC' + rid });
+    }
     // ---- quản trị ----
     if (p === '/api/admin/setup') return json({ needs_setup: false });
     if (p === '/api/admin/login' || p === '/api/admin/logout') return json({ ok: true });
@@ -139,6 +163,26 @@
       if (method !== 'GET') return json({ ok: true, id: +m[1] });
       var o = F.offers_admin.loan.concat(F.offers_admin.card).filter(function (x) { return x.id === +m[1]; })[0];
       return o ? json(o) : err('Không tìm thấy gói này.', 404);
+    }
+    if (p === '/api/admin/pages') return json({ items: F.pages_admin });
+    if (/^\/api\/admin\/pages\//.test(p)) return json({ ok: true });
+    if (p === '/api/admin/data-requests') {
+      var reqs = F.data_requests.items.concat(S.requests).map(function (r) { return Object.assign({}, r, S.reqPatch[r.id] || {}); })
+        .sort(function (a, b) { return b.id - a.id; });
+      var cnt = {};
+      reqs.forEach(function (r) { cnt[r.status] = (cnt[r.status] || 0) + 1; });
+      var st2 = q.get('status');
+      return json({ items: reqs.filter(function (r) { return !st2 || r.status === st2; }), counts: cnt, types: F.data_requests.types, statuses: F.data_requests.statuses });
+    }
+    if ((m = p.match(/^\/api\/admin\/data-requests\/(\d+)$/))) {
+      S.reqPatch[+m[1]] = { status: body.status, note: body.note, handled_by_name: F.me.admin.name, updated_at: new Date().toISOString() };
+      persist();
+      return json({ ok: true });
+    }
+    if ((m = p.match(/^\/api\/admin\/customers\/(\d+)\/anonymize$/))) {
+      S.anon[+m[1]] = new Date().toISOString();
+      persist();
+      return json({ ok: true });
     }
     if (p === '/api/admin/uploads') return err('Bản demo không lưu ảnh tải lên.');
     if (p === '/api/admin/landings') return method === 'GET' ? json({ items: F.landings }) : json({ ok: true, id: 1 });
@@ -189,6 +233,16 @@
     var href = a.getAttribute('href');
     if (href.indexOf('/api/admin/leads/export') >= 0) { e.preventDefault(); say('Bản thật tải về file CSV mở bằng Excel, cột riêng cho vay hoặc thẻ.'); return; }
     if (/^(tel:|mailto:|https:\/\/zalo\.me)/.test(href)) { e.preventDefault(); say('Bản demo: nút này gọi điện hoặc mở Zalo trên website thật.'); return; }
+    // Landing demo chạy router dạng #: link nội bộ /duong-dan đổi thành #/duong-dan
+    if (window.__DEMO_APP__ === 'web' && href.charAt(0) === '/' && href.charAt(1) !== '/') {
+      e.preventDefault();
+      e.stopPropagation();
+      var dlg = document.querySelector('dialog[open]');
+      if (dlg) dlg.close();
+      location.hash = '#' + href;
+      window.scrollTo(0, 0);
+      return;
+    }
     // Neo trong trang (#khoan-vay…): cuộn tới, không đổi route
     if (href.charAt(0) === '#' && href.charAt(1) !== '/') {
       var el = document.getElementById(href.slice(1));

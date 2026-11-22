@@ -2,13 +2,15 @@
 // Form đăng ký: phần câu hỏi khác nhau cho khoản vay và thẻ tín dụng
 const reg = useRegister()
 const { data: opts } = await useOptions()
+const { data: site } = await useSite()
+const siteName = computed(() => site.value?.site_name || 'website')
 const dlg = ref<HTMLDialogElement | null>(null)
 const year = new Date().getFullYear()
 const years = Array.from({ length: 53 }, (_, i) => year - 18 - i)
 
 const blank = () => ({
   full_name: '', phone: '', email: '', birth_year: '' as number | '', province: '', occupation: '', income: '',
-  amount: '', term: '' as number | '', purpose: '', salary_method: '', has_card: '', card_need: '', consent: true, website: '',
+  amount: '', term: '' as number | '', purpose: '', salary_method: '', has_card: '', card_need: '', consent: false, website: '',
 })
 const f = reactive(blank())
 const errors = ref<Record<string, string>>({})
@@ -71,7 +73,7 @@ function check() {
     if (!f.has_card) e.has_card = 'Cho biết bạn đã có thẻ tín dụng chưa.'
     if (!f.card_need) e.card_need = 'Chọn nhu cầu dùng thẻ.'
   }
-  if (!f.consent) e.consent = 'Bạn cần đồng ý để đối tác liên hệ tư vấn.'
+  if (!f.consent) e.consent = 'Bạn cần đồng ý với điều khoản và chính sách dữ liệu cá nhân để gửi đăng ký.'
   return e
 }
 
@@ -101,6 +103,7 @@ async function submit() {
     w.dataLayer?.push({ event: 'lead_submit', offer: res.offer, offer_type: res.type })
     w.fbq?.('track', 'Lead')
     done.value = res
+    f.consent = false
     if (res.redirect) {
       countdown.value = 5
       timer = setInterval(() => {
@@ -222,9 +225,15 @@ async function submit() {
           </div>
         </fieldset>
 
-        <label class="check">
+        <label class="check" :class="{ 'has-err': errors.consent }">
           <input v-model="f.consent" type="checkbox">
-          <span>Tôi đồng ý để đối tác và tư vấn viên liên hệ qua số điện thoại trên để hướng dẫn hồ sơ.</span>
+          <span>
+            Tôi đã đọc và đồng ý với <a href="/dieu-khoan-su-dung" target="_blank" rel="noopener">Điều khoản sử dụng</a>,
+            <a href="/chinh-sach-bao-mat" target="_blank" rel="noopener">Chính sách bảo mật</a> và
+            <a href="/bao-ve-du-lieu-ca-nhan" target="_blank" rel="noopener">Thông báo xử lý dữ liệu cá nhân</a>;
+            đồng ý cho {{ siteName }} xử lý thông tin trên (gồm thông tin thu nhập{{ isLoan ? ', nhu cầu vay' : ', nhu cầu mở thẻ' }})
+            và chuyển cho {{ offer.partner || 'đối tác' }} để liên hệ tư vấn, thẩm định hồ sơ.
+          </span>
         </label>
         <small class="field__err">{{ errors.consent }}</small>
         <p class="form-msg" role="alert">{{ message }}</p>

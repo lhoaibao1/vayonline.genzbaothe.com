@@ -166,6 +166,9 @@ func (a *App) seed(ctx context.Context) error {
 		}
 	}
 
+	if err := a.seedLegal(ctx); err != nil {
+		return err
+	}
 	var n int
 	if err := a.db.QueryRow(ctx, `SELECT COUNT(*) FROM offers`).Scan(&n); err != nil || n > 0 {
 		return err

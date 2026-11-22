@@ -8,7 +8,7 @@ const demo = __DEMO__
 const route = useRoute()
 const router = useRouter()
 const navOpen = ref(false)
-const counts = ref({ loan: 0, card: 0 })
+const counts = ref({ loan: 0, card: 0, req: 0 })
 
 watch(() => route.path, () => { navOpen.value = false; ui.navKey = '' })
 
@@ -16,11 +16,12 @@ watch(() => route.path, () => { navOpen.value = false; ui.navKey = '' })
 watch(() => [route.fullPath, session.me], async () => {
   if (!session.me || !can('leads.view')) return
   try {
-    const [l, c] = await Promise.all([
+    const [l, c, d] = await Promise.all([
       api('/leads', { query: { type: 'loan', status: 'new', page: 1 } }),
       api('/leads', { query: { type: 'card', status: 'new', page: 1 } }),
+      api('/data-requests', { query: { status: 'new' } }),
     ])
-    counts.value = { loan: l.total, card: c.total }
+    counts.value = { loan: l.total, card: c.total, req: d.counts?.new ?? 0 }
   } catch { /* bỏ qua */ }
 }, { immediate: true })
 
@@ -37,6 +38,10 @@ const nav = computed(() => [
   { group: 'Chung', items: [
     { to: '/customers', label: 'Khách hàng', perm: 'leads.view' },
     { to: '/landings', label: 'Landing page', perm: 'landings' },
+  ] },
+  { group: 'Dữ liệu cá nhân', items: [
+    { to: '/data-requests', label: 'Yêu cầu dữ liệu', perm: 'leads.view', count: counts.value.req, pink: true },
+    { to: '/pages', label: 'Trang chính sách', perm: 'settings' },
   ] },
   { group: 'Hệ thống', items: [
     { to: '/users', label: 'Tài khoản quản trị', perm: 'admins' },

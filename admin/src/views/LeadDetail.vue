@@ -95,6 +95,15 @@ const utm = computed(() => [lead.value?.utm_source, lead.value?.utm_medium, lead
         </section>
 
         <section class="card">
+          <h2 class="card__t">Sự đồng ý xử lý dữ liệu</h2>
+          <dl class="kv kv--wide">
+            <div><dt>Thời điểm đồng ý</dt><dd>{{ lead.consent_at ? dt(lead.consent_at) : 'Không có (đăng ký trước khi có chính sách)' }}</dd></div>
+            <div><dt>Phiên bản chính sách</dt><dd class="break">{{ lead.consent_versions || '—' }}</dd></div>
+            <div v-if="lead.anonymized_at"><dt>Đã ẩn danh hoá</dt><dd>{{ dt(lead.anonymized_at) }}</dd></div>
+          </dl>
+        </section>
+
+        <section class="card">
           <h2 class="card__t">Nguồn truy cập</h2>
           <dl class="kv kv--wide">
             <div><dt>Sang trang đối tác</dt><dd>{{ lead.clicked_out_at ? dt(lead.clicked_out_at) : 'Chưa' }}</dd></div>

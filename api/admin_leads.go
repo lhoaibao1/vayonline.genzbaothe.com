@@ -42,12 +42,16 @@ type Lead struct {
 	IP           string     `db:"ip" json:"ip"`
 	UserAgent    string     `db:"user_agent" json:"user_agent"`
 	ClickedOutAt *time.Time `db:"clicked_out_at" json:"clicked_out_at"`
+	ConsentAt    *time.Time `db:"consent_at" json:"consent_at"`
+	ConsentVer   string     `db:"consent_versions" json:"consent_versions"`
+	AnonymizedAt *time.Time `db:"anonymized_at" json:"anonymized_at"`
 	CreatedAt    time.Time  `db:"created_at" json:"created_at"`
 }
 
 const leadSelect = `SELECT r.id, r.customer_id, r.offer_id, COALESCE(o.name, r.offer_name) AS offer_name, r.offer_type, r.landing_id, l.name AS landing_name,
 	r.full_name, r.phone, r.email, r.birth_year, r.province, r.occupation, r.income, r.amount, r.term, r.purpose, r.salary_method, r.has_card, r.card_need,
-	r.status, r.note, r.utm_source, r.utm_medium, r.utm_campaign, r.utm_content, r.referrer, r.ip, r.user_agent, r.clicked_out_at, r.created_at
+	r.status, r.note, r.utm_source, r.utm_medium, r.utm_campaign, r.utm_content, r.referrer, r.ip, r.user_agent, r.clicked_out_at,
+	r.consent_at, r.consent_versions, r.anonymized_at, r.created_at
 	FROM registrations r LEFT JOIN offers o ON o.id = r.offer_id LEFT JOIN landings l ON l.id = r.landing_id`
 
 func validType(t string) bool { return t == "loan" || t == "card" }

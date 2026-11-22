@@ -249,3 +249,4 @@ a.mod__kpi:hover { text-decoration: none; filter: brightness(1.05); }
 .b[disabled] { opacity: .6; cursor: progress; }
 .mod__kpi--hot:hover { text-decoration: none; }
 .card.stack { padding: 20px; }
+.mini-input { width: 100%; padding: 6px 9px; border: 1px solid #d6cfe6; border-radius: 8px; font: 13px var(--font); resize: vertical; }

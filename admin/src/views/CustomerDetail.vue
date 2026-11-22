@@ -10,6 +10,7 @@ const c = ref<any>(null)
 const leads = ref<any[]>([])
 const errors = ref<Record<string, string>>({})
 const confirmDel = ref(false)
+const confirmAnon = ref(false)
 const error = ref('')
 
 async function load() {
@@ -32,6 +33,17 @@ async function save() {
     notify('Đã lưu thông tin khách hàng.')
   } catch (e: any) {
     errors.value = e.errors
+    notify(e.message, 'err')
+  }
+}
+async function anonymize() {
+  if (!confirmAnon.value) return (confirmAnon.value = true)
+  try {
+    await api(`/customers/${c.value.id}/anonymize`, { method: 'POST' })
+    notify('Đã ẩn danh hoá dữ liệu khách. Số liệu thống kê vẫn được giữ.')
+    confirmAnon.value = false
+    load()
+  } catch (e: any) {
     notify(e.message, 'err')
   }
 }
@@ -104,6 +116,10 @@ async function remove() {
           <a class="b" :href="`tel:${c.phone}`">Gọi khách</a>
           <a class="b" :href="`https://zalo.me/${c.phone}`" target="_blank" rel="noopener">Nhắn Zalo</a>
         </div>
+        <p v-if="c.anonymized_at" class="flash flash--success">Đã ẩn danh hoá lúc {{ dt(c.anonymized_at) }}.</p>
+        <button v-else-if="can('leads.delete')" class="b b--danger-ghost b--block" type="button" style="margin-bottom: 8px" @click="anonymize">
+          {{ confirmAnon ? 'Bấm lần nữa: xoá tên, SĐT, email, IP của khách và mọi đăng ký' : 'Ẩn danh hoá dữ liệu (khi khách yêu cầu xoá)' }}
+        </button>
         <button v-if="can('leads.delete')" class="b b--danger-ghost" type="button" @click="remove">
           {{ confirmDel ? `Bấm lần nữa để xoá khách và ${leads.length} đăng ký` : 'Xoá khách hàng' }}
         </button>

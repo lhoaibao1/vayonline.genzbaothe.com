@@ -47,5 +47,6 @@ func (a *App) publicOptions(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{
 		"provinces": provinces, "income": incomeOpts, "occupation": occupationOpts, "purpose": purposeOpts,
 		"salary_method": salaryOpts, "has_card": hasCardOpts, "card_need": cardNeedOpts, "terms": termOpts, "status": statusOpts,
+		"data_request_type": dataRequestTypes, "data_request_status": dataRequestStatus,
 	})
 }

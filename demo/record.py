@@ -62,5 +62,9 @@ for t in ("loan", "card"):
 fx["leads"] = leads
 fx["customers"] = [call(f"/api/admin/customers/{cid}")["customer"] for cid in sorted({l["customer_id"] for l in leads})]
 
+fx["pages_admin"] = call("/api/admin/pages")["items"]
+fx["pages"] = {p["slug"]: call("/api/public/pages/" + p["slug"]) for p in fx["pages_admin"]}
+fx["data_requests"] = call("/api/admin/data-requests")
+
 json.dump(fx, open("demo/fixtures.json", "w"), ensure_ascii=False, separators=(",", ":"))
 print("ghi xong:", len(leads), "đăng ký,", len(fx["customers"]), "khách hàng")

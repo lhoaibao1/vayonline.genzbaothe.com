@@ -38,6 +38,17 @@ async function save() {
           <label class="f"><span>Tuyên bố miễn trừ trách nhiệm</span><textarea v-model="s.disclaimer" rows="3" /></label>
         </section>
         <section class="card stack">
+          <h2 class="card__t">Thông tin pháp nhân</h2>
+          <p class="hint" style="margin: 0">Tự điền vào chân trang và các trang chính sách. Ô để trống hiện “[chưa cập nhật]” trên website.</p>
+          <label class="f"><span>Tên đơn vị vận hành</span><input v-model="s.company_name" placeholder="Công ty TNHH …"></label>
+          <div class="row2">
+            <label class="f"><span>Mã số doanh nghiệp</span><input v-model="s.tax_code"></label>
+            <label class="f"><span>Email nhận yêu cầu về dữ liệu cá nhân</span><input v-model="s.privacy_email" type="email" placeholder="để trống thì dùng email liên hệ"></label>
+          </div>
+          <label class="f"><span>Địa chỉ trụ sở</span><input v-model="s.company_address"></label>
+          <RouterLink to="/pages">Sửa nội dung Điều khoản, Chính sách bảo mật, Dữ liệu cá nhân</RouterLink>
+        </section>
+        <section class="card stack">
           <h2 class="card__t">Câu hỏi thường gặp</h2>
           <label class="f"><span>Mỗi dòng một câu, dạng <code>Câu hỏi|Câu trả lời</code></span><textarea v-model="s.faq" rows="8" /></label>
         </section>

@@ -49,6 +49,10 @@ export interface LandingData {
 }
 
 export interface Site {
+  pages: { slug: string; title: string }[]
+  company_name: string
+  tax_code: string
+  company_address: string
   site_name: string
   site_tagline: string
   hotline: string
@@ -69,6 +73,7 @@ export interface Options {
   has_card: Opt[]
   card_need: Opt[]
   terms: number[]
+  data_request_type: Opt[]
 }
 
 export const useSite = () => useApi<Site>('site', '/api/public/site')

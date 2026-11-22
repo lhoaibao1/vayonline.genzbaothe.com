@@ -40,6 +40,13 @@ Trình duyệt ──► Caddy ─┬─ /api/*, /uploads/* ──► api (Go) �
 - **Gói vay** / **Gói thẻ**: thêm, sửa, ẩn, xoá, logo, link affiliate.
 - Landing page, tài khoản quản trị (3 vai trò), cài đặt website.
 
+**Pháp lý & dữ liệu cá nhân**
+- Trang **Điều khoản sử dụng**, **Chính sách bảo mật**, **Thông báo xử lý dữ liệu cá nhân** (nội dung mẫu, sửa trong CMS mục *Trang chính sách*). Thông tin pháp nhân điền ở *Cài đặt* và tự chèn vào các trang; ô chưa điền hiện “[chưa cập nhật]”.
+- Form đăng ký có ô đồng ý **không tick sẵn**, liên kết tới 3 chính sách. Mỗi đăng ký lưu thời điểm đồng ý và phiên bản chính sách khách đã đồng ý (sửa nội dung chính sách thì phiên bản tự tăng).
+- Trang `/yeu-cau-du-lieu`: khách yêu cầu xem, sửa, xoá dữ liệu, rút lại đồng ý. CMS mục *Yêu cầu dữ liệu* để xử lý, ghi người xử lý.
+- **Ẩn danh hoá** dữ liệu một khách (xoá tên, SĐT, email, IP trên hồ sơ và mọi đăng ký) nhưng giữ số liệu thống kê.
+- Nội dung chính sách là bản mẫu, cần luật sư rà soát trước khi chạy thật.
+
 ## Chạy bằng Docker
 
 ```bash

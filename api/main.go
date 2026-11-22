@@ -104,10 +104,12 @@ func (a *App) routes() http.Handler {
 	mux.HandleFunc("GET /api/healthz", func(w http.ResponseWriter, r *http.Request) { writeJSON(w, 200, map[string]bool{"ok": true}) })
 	mux.HandleFunc("GET /api/public/site", a.publicSite)
 	mux.HandleFunc("GET /api/public/options", a.publicOptions)
-	mux.HandleFunc("GET /api/public/landing", a.publicLanding)        // ?slug= (trống = trang chủ)
-	mux.HandleFunc("GET /api/public/module/{type}", a.publicModule)   // loan | card
+	mux.HandleFunc("GET /api/public/landing", a.publicLanding)      // ?slug= (trống = trang chủ)
+	mux.HandleFunc("GET /api/public/module/{type}", a.publicModule) // loan | card
 	mux.HandleFunc("GET /api/public/offers/{slug}", a.publicOffer)
 	mux.HandleFunc("POST /api/public/register", a.publicRegister)
+	mux.HandleFunc("GET /api/public/pages/{slug}", a.publicPage)
+	mux.HandleFunc("POST /api/public/data-requests", a.publicDataRequest)
 
 	// Ảnh logo đã tải lên
 	mux.Handle("GET /uploads/", http.StripPrefix("/uploads/", noDirList(http.FileServer(http.Dir(a.cfg.UploadDir)))))
@@ -123,7 +125,7 @@ func (a *App) routes() http.Handler {
 
 	mux.HandleFunc("GET /api/admin/dashboard", a.auth("leads.view", a.adminDashboard))
 
-	mux.HandleFunc("GET /api/admin/leads", a.auth("leads.view", a.adminLeads))             // ?type=loan|card
+	mux.HandleFunc("GET /api/admin/leads", a.auth("leads.view", a.adminLeads)) // ?type=loan|card
 	mux.HandleFunc("GET /api/admin/leads/export", a.auth("leads.export", a.adminLeadsExport))
 	mux.HandleFunc("GET /api/admin/leads/{id}", a.auth("leads.view", a.adminLead))
 	mux.HandleFunc("PATCH /api/admin/leads/{id}", a.auth("leads.edit", a.adminLeadUpdate))
@@ -133,6 +135,12 @@ func (a *App) routes() http.Handler {
 	mux.HandleFunc("GET /api/admin/customers/{id}", a.auth("leads.view", a.adminCustomer))
 	mux.HandleFunc("PUT /api/admin/customers/{id}", a.auth("leads.edit", a.adminCustomerUpdate))
 	mux.HandleFunc("DELETE /api/admin/customers/{id}", a.auth("leads.delete", a.adminCustomerDelete))
+	mux.HandleFunc("POST /api/admin/customers/{id}/anonymize", a.auth("leads.delete", a.adminCustomerAnonymize))
+
+	mux.HandleFunc("GET /api/admin/data-requests", a.auth("leads.view", a.adminDataRequests))
+	mux.HandleFunc("PATCH /api/admin/data-requests/{id}", a.auth("leads.edit", a.adminDataRequestUpdate))
+	mux.HandleFunc("GET /api/admin/pages", a.auth("settings", a.adminPages))
+	mux.HandleFunc("PUT /api/admin/pages/{slug}", a.auth("settings", a.adminPageSave))
 
 	mux.HandleFunc("GET /api/admin/offers", a.auth("offers", a.adminOffers)) // ?type=loan|card
 	mux.HandleFunc("GET /api/admin/offers/{id}", a.auth("offers", a.adminOffer))

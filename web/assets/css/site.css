@@ -275,3 +275,39 @@ img.logo { padding: 6px; }
 
 .notfound { padding: 96px 20px; display: grid; gap: 16px; justify-items: start; }
 .notfound h1 { font-size: 40px; font-weight: 900; }
+
+/* Trang chính sách & yêu cầu dữ liệu */
+.legal { padding: 32px 0 80px; }
+.legal__in { max-width: 860px; }
+.legal h1 { font-size: clamp(30px, 4.5vw, 44px); font-weight: 900; letter-spacing: -0.04em; margin-bottom: 18px; }
+.legal__tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+.legal__tabs a { padding: 7px 14px; border: 2px solid var(--ink); border-radius: 999px; font-weight: 700; font-size: 14px; color: var(--ink); text-decoration: none; background: var(--white); }
+.legal__tabs a[aria-current="page"] { background: var(--ink); color: var(--lemon); }
+.legal__body { background: var(--white); border: 2px solid var(--ink); border-radius: var(--r-xl); padding: 28px 32px; box-shadow: var(--shadow); line-height: 1.7; }
+.legal__body > :first-child { margin-top: 0; color: var(--ink-2); font-size: 14px; }
+.legal__body h2 { font-size: 21px; font-weight: 900; margin: 28px 0 10px; }
+.legal__body h3 { font-size: 17px; font-weight: 800; margin: 20px 0 8px; }
+.legal__body p { margin: 0 0 12px; max-width: 72ch; }
+.legal__body ul, .legal__body ol { margin: 0 0 12px; padding-left: 22px; max-width: 72ch; }
+.legal__body li { margin-bottom: 6px; }
+.legal__body a { font-weight: 700; }
+mark.todo { background: #ffe0e8; color: var(--danger); padding: 0 4px; border-radius: 4px; font-weight: 700; }
+.legal__lead { margin-bottom: 18px; color: var(--ink-2); max-width: 72ch; }
+.req-form { display: grid; gap: 16px; background: var(--white); border: 2px solid var(--ink); border-radius: var(--r-xl); padding: 28px; box-shadow: var(--shadow); }
+.req-types { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.req-types legend { font-weight: 800; font-size: 14px; margin-bottom: 8px; padding: 0; }
+.req-type { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border: 2px solid var(--ink); border-radius: var(--r); cursor: pointer; font-weight: 600; font-size: 15px; }
+.req-type input { width: 20px; height: 20px; accent-color: var(--violet); flex: none; margin: 0; }
+.req-type:has(input:checked) { background: var(--violet-50); box-shadow: 3px 3px 0 var(--violet); border-color: var(--violet); }
+.req-types.has-err .req-type { border-color: var(--danger); }
+.req-types .field__err { grid-column: 1 / -1; }
+.req-form textarea { width: 100%; padding: 10px 14px; border-radius: var(--r); border: 2px solid var(--ink); font: 500 16px var(--font); resize: vertical; }
+.req-form .btn { justify-self: start; }
+.req-done { background: var(--mint-50); border: 2px solid var(--ink); border-radius: var(--r-xl); padding: 28px; display: grid; gap: 12px; justify-items: start; }
+.req-done h2 { font-size: 24px; font-weight: 900; }
+@media (max-width: 640px) { .req-types { grid-template-columns: 1fr; } .legal__body, .req-form { padding: 20px 18px; } }
+.footer__links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 28px; }
+.footer__links a { color: var(--white); font-weight: 600; font-size: 14px; text-decoration: none; }
+.footer__links a:hover { text-decoration: underline; color: var(--lemon); }
+.check a { color: var(--violet); font-weight: 700; }
+.check.has-err span { color: var(--danger); }

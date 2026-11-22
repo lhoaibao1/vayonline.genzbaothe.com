@@ -85,14 +85,25 @@ func (a *App) seedDemo(ctx context.Context) error {
 		}
 		_, err := a.db.Exec(ctx, `INSERT INTO registrations (customer_id, offer_id, offer_name, offer_type, landing_id, full_name, phone, email, birth_year, province,
 			occupation, income, amount, term, purpose, salary_method, has_card, card_need, status, note, utm_source, utm_medium, utm_campaign, ip, user_agent,
-			clicked_out_at, created_at, updated_at)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$27)`,
+			clicked_out_at, created_at, updated_at, consent_at, consent_versions)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$27,$27,
+			'dieu-khoan-su-dung@v1,chinh-sach-bao-mat@v1,bao-ve-du-lieu-ca-nhan@v1')`,
 			cid, o.ID, o.Name, o.Type, landing, name, phone, email, by, prov, occ, inc, amount, term, purpose, salary, hasCard, need, status, note,
 			s[0], s[1], s[2], fmt.Sprintf("113.161.%d.%d", 1+rnd.IntN(254), 1+rnd.IntN(254)),
 			"Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) Safari/604.1", clicked, at)
 		if err != nil {
 			return err
 		}
+	}
+	// Hai yêu cầu dữ liệu mẫu
+	if _, err := a.db.Exec(ctx, `INSERT INTO data_requests (type, full_name, phone, content, customer_id, created_at)
+		SELECT 'delete', full_name, phone, 'Tôi không còn nhu cầu vay, đề nghị xoá thông tin.', id, now() - interval '5 hours' FROM customers ORDER BY id LIMIT 1`); err != nil {
+		return err
+	}
+	if _, err := a.db.Exec(ctx, `INSERT INTO data_requests (type, full_name, phone, content, customer_id, status, note, created_at)
+		SELECT 'correct', full_name, phone, 'Năm sinh đăng ký bị sai, đúng là 1994.', id, 'done', 'Đã xác minh qua điện thoại và sửa hồ sơ.', now() - interval '2 days'
+		FROM customers ORDER BY id OFFSET 5 LIMIT 1`); err != nil {
+		return err
 	}
 	for d := 0; d < 30; d++ {
 		for lid, base := range map[int64]int{1: 70, 2: 25, fbID: 55} {

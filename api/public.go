@@ -35,8 +35,19 @@ func (a *App) publicSite(w http.ResponseWriter, r *http.Request) {
 			faqs = append(faqs, faq{q, ans})
 		}
 	}
+	type pageLink struct {
+		Slug  string `json:"slug"`
+		Title string `json:"title"`
+	}
+	pages := []pageLink{}
+	if list, err := a.pageList(r.Context()); err == nil {
+		for _, p := range list {
+			pages = append(pages, pageLink{p.Slug, p.Title})
+		}
+	}
 	w.Header().Set("Cache-Control", "public, max-age=60")
 	writeJSON(w, 200, map[string]any{
+		"pages": pages, "company_name": s["company_name"], "tax_code": s["tax_code"], "company_address": s["company_address"],
 		"site_name": s["site_name"], "site_tagline": s["site_tagline"], "hotline": s["hotline"], "zalo": s["zalo"],
 		"contact_email": s["contact_email"], "company_info": s["company_info"], "disclaimer": s["disclaimer"],
 		"faq": faqs, "head_scripts": s["head_scripts"], "body_scripts": s["body_scripts"],
@@ -302,7 +313,7 @@ func (a *App) publicRegister(w http.ResponseWriter, r *http.Request) {
 		in.Amount, in.Term, in.Purpose, in.SalaryMethod = 0, 0, "", ""
 	}
 	if !in.Consent {
-		errs["consent"] = "Bạn cần đồng ý để đối tác liên hệ tư vấn."
+		errs["consent"] = "Bạn cần đồng ý với điều khoản và chính sách dữ liệu cá nhân để gửi đăng ký."
 	}
 	if len(errs) > 0 {
 		failFields(w, errs)
@@ -333,6 +344,7 @@ func (a *App) publicRegister(w http.ResponseWriter, r *http.Request) {
 		amount, term = in.Amount, in.Term
 	}
 
+	consent := a.consentVersions(ctx)
 	tx, err := a.db.Begin(ctx)
 	if err != nil {
 		serverError(w, err)
@@ -359,15 +371,15 @@ func (a *App) publicRegister(w http.ResponseWriter, r *http.Request) {
 	if err == pgx.ErrNoRows {
 		err = tx.QueryRow(ctx, `INSERT INTO registrations (customer_id, offer_id, offer_name, offer_type, landing_id, full_name, phone, email, birth_year,
 			province, occupation, income, amount, term, purpose, salary_method, has_card, card_need, utm_source, utm_medium, utm_campaign, utm_content,
-			referrer, ip, user_agent)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25) RETURNING id`,
+			referrer, ip, user_agent, consent_at, consent_versions)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25, now(), $26) RETURNING id`,
 			customerID, offer.ID, offer.Name, offer.Type, landingID, in.FullName, phone, in.Email, in.BirthYear, in.Province, in.Occupation, in.Income,
 			amount, term, in.Purpose, in.SalaryMethod, in.HasCard, in.CardNeed, clip(in.UtmSource, 120), clip(in.UtmMedium, 120), clip(in.UtmCampaign, 120),
-			clip(in.UtmContent, 120), clip(in.Referrer, 255), ip, clip(r.UserAgent(), 255)).Scan(&regID)
+			clip(in.UtmContent, 120), clip(in.Referrer, 255), ip, clip(r.UserAgent(), 255), consent).Scan(&regID)
 	} else if err == nil {
 		_, err = tx.Exec(ctx, `UPDATE registrations SET full_name=$2, email=$3, birth_year=$4, province=$5, occupation=$6, income=$7, amount=$8, term=$9,
-			purpose=$10, salary_method=$11, has_card=$12, card_need=$13, updated_at=now() WHERE id=$1`,
-			regID, in.FullName, in.Email, in.BirthYear, in.Province, in.Occupation, in.Income, amount, term, in.Purpose, in.SalaryMethod, in.HasCard, in.CardNeed)
+			purpose=$10, salary_method=$11, has_card=$12, card_need=$13, consent_at=now(), consent_versions=$14, updated_at=now() WHERE id=$1`,
+			regID, in.FullName, in.Email, in.BirthYear, in.Province, in.Occupation, in.Income, amount, term, in.Purpose, in.SalaryMethod, in.HasCard, in.CardNeed, consent)
 	}
 	if err != nil {
 		serverError(w, err)

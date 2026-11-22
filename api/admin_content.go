@@ -61,22 +61,23 @@ func (a *App) adminCustomers(w http.ResponseWriter, r *http.Request) {
 }
 
 type Customer struct {
-	ID         int64     `db:"id" json:"id"`
-	FullName   string    `db:"full_name" json:"full_name"`
-	Phone      string    `db:"phone" json:"phone"`
-	Email      string    `db:"email" json:"email"`
-	BirthYear  *int      `db:"birth_year" json:"birth_year"`
-	Province   string    `db:"province" json:"province"`
-	Occupation string    `db:"occupation" json:"occupation"`
-	Income     string    `db:"income" json:"income"`
-	Note       string    `db:"note" json:"note"`
-	CreatedAt  time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt  time.Time `db:"updated_at" json:"updated_at"`
+	ID         int64      `db:"id" json:"id"`
+	FullName   string     `db:"full_name" json:"full_name"`
+	Phone      string     `db:"phone" json:"phone"`
+	Email      string     `db:"email" json:"email"`
+	BirthYear  *int       `db:"birth_year" json:"birth_year"`
+	Province   string     `db:"province" json:"province"`
+	Occupation string     `db:"occupation" json:"occupation"`
+	Income     string     `db:"income" json:"income"`
+	Note       string     `db:"note" json:"note"`
+	Anonymized *time.Time `db:"anonymized_at" json:"anonymized_at"`
+	CreatedAt  time.Time  `db:"created_at" json:"created_at"`
+	UpdatedAt  time.Time  `db:"updated_at" json:"updated_at"`
 }
 
 func (a *App) adminCustomer(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	rows, _ := a.db.Query(ctx, `SELECT id, full_name, phone, email, birth_year, province, occupation, income, note, created_at, updated_at FROM customers WHERE id = $1`, pathID(r))
+	rows, _ := a.db.Query(ctx, `SELECT id, full_name, phone, email, birth_year, province, occupation, income, note, anonymized_at, created_at, updated_at FROM customers WHERE id = $1`, pathID(r))
 	c, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[Customer])
 	if err == pgx.ErrNoRows {
 		fail(w, 404, "Không tìm thấy khách hàng.")
@@ -498,7 +499,8 @@ func (a *App) adminUserDelete(w http.ResponseWriter, r *http.Request) {
 
 /* ---------- Cài đặt ---------- */
 
-var settingKeys = []string{"site_name", "site_tagline", "hotline", "zalo", "contact_email", "company_info", "disclaimer", "faq", "head_scripts", "body_scripts"}
+var settingKeys = []string{"site_name", "site_tagline", "hotline", "zalo", "contact_email", "company_info", "disclaimer", "faq", "head_scripts", "body_scripts",
+	"company_name", "tax_code", "company_address", "privacy_email"}
 
 func (a *App) adminSettings(w http.ResponseWriter, r *http.Request) {
 	s, err := a.settings(r.Context())
