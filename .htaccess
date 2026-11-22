@@ -1,0 +1,5 @@
+# Dùng khi document root trỏ vào thư mục gốc dự án (hosting không đổi được root)
+RewriteEngine On
+RewriteRule ^(app|storage|bin)(/|$) - [F,L]
+RewriteRule ^(config\.php|README\.md|\.git) - [F,L]
+RewriteRule ^(.*)$ public/$1 [L]

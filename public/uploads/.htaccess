@@ -1,0 +1,5 @@
+# Không cho chạy script trong thư mục upload
+<FilesMatch "\.(php|phtml|phar|pl|py|cgi|sh)$">
+  Require all denied
+</FilesMatch>
+php_flag engine off
