@@ -60,7 +60,9 @@ services:
     environment:
       SITE_DOMAIN: ${SITE_DOMAIN:-localhost}
       ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+      CF_API_TOKEN: ${CF_API_TOKEN:-}
     volumes:
+      - ./deploy/local:/etc/caddy/local:ro
       - caddy_data:/data
       - caddy_config:/config
 

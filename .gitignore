@@ -7,3 +7,5 @@ web/.nuxt/
 web/.output/
 admin/node_modules/
 admin/dist/
+
+deploy/local/*.caddy

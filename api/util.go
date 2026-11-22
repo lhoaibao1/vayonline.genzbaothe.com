@@ -64,6 +64,10 @@ func qInt(r *http.Request, k string) int64 {
 
 func (a *App) clientIP(r *http.Request) string {
 	if a.cfg.TrustProxy {
+		// Caddy gửi IP đã xác thực (kể cả khi qua Cloudflare) trong X-Real-IP
+		if ip := strings.TrimSpace(r.Header.Get("X-Real-IP")); ip != "" {
+			return ip
+		}
 		if xf := r.Header.Get("X-Forwarded-For"); xf != "" {
 			return strings.TrimSpace(strings.Split(xf, ",")[0])
 		}

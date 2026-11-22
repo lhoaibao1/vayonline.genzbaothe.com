@@ -5,13 +5,19 @@
 #   còn lại             -> landing Nuxt
 {
 	email {$ACME_EMAIL}
+	# Cấu hình riêng của từng VPS do install.sh tạo (Cloudflare: xác minh HTTPS qua DNS, tin dải IP Cloudflare)
+	import /etc/caddy/local/*.caddy
 }
 
 {$SITE_DOMAIN} {
 	encode zstd gzip
 
+	# IP thật của khách: {client_ip} lấy từ CF-Connecting-IP khi request đến từ Cloudflare (xem local/cloudflare.caddy),
+	# ngược lại là IP kết nối trực tiếp. Không dùng X-Forwarded-For vì khách tự chèn được.
 	handle /api/* {
-		reverse_proxy api:8080
+		reverse_proxy api:8080 {
+			header_up X-Real-IP {client_ip}
+		}
 	}
 	handle /uploads/* {
 		reverse_proxy api:8080

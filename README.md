@@ -51,17 +51,26 @@ Trình duyệt ──► Caddy ─┬─ /api/*, /uploads/* ──► api (Go) �
 ## Cài lên VPS bằng một lệnh
 
 VPS Ubuntu 22.04/24.04 hoặc Debian 12, tối thiểu 1 vCPU, 1GB RAM (script tự tạo swap), 20GB ổ đĩa.
-Trỏ bản ghi A của tên miền về IP VPS, rồi SSH vào VPS và chạy:
+
+**Tên miền trên Cloudflare** (ví dụ `vayonline.genzbaothe.com`):
+
+1. Cloudflare → DNS: bản ghi `A` `vayonline` → IP VPS (bật hay tắt proxy đều được).
+2. Cloudflare → SSL/TLS → Overview: chọn **Full (strict)**.
+3. Tạo API token: My Profile → API Tokens → Create Token → mẫu **Edit zone DNS** → Zone Resources: `genzbaothe.com`. Caddy dùng token này để xin chứng chỉ HTTPS qua DNS, nên vẫn chạy khi bật proxy (đám mây cam).
+4. SSH vào VPS và chạy:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/lhoaibao1/vayonline.genzbaothe.com/main/deploy/install.sh | sudo bash -s -- --domain genzbaothe.com
+curl -fsSL https://raw.githubusercontent.com/lhoaibao1/vayonline.genzbaothe.com/main/deploy/install.sh | sudo bash -s -- --domain vayonline.genzbaothe.com --cloudflare-token CF_TOKEN
 ```
 
-Repo riêng tư: tạo GitHub token chỉ có quyền đọc nội dung repo (Fine-grained token → Contents: Read-only), rồi chạy:
+Repo riêng tư: thêm GitHub token chỉ có quyền đọc (Fine-grained token → Contents: Read-only):
 
 ```bash
-curl -fsSL -H "Authorization: Bearer TOKEN" https://raw.githubusercontent.com/lhoaibao1/vayonline.genzbaothe.com/main/deploy/install.sh | sudo bash -s -- --domain genzbaothe.com --token TOKEN
+curl -fsSL -H "Authorization: Bearer GH_TOKEN" https://raw.githubusercontent.com/lhoaibao1/vayonline.genzbaothe.com/main/deploy/install.sh | sudo bash -s -- --domain vayonline.genzbaothe.com --cloudflare-token CF_TOKEN --token GH_TOKEN
 ```
+
+Khi chạy sau Cloudflare, script tự cấu hình Caddy tin dải IP Cloudflare và lấy IP thật của khách từ `CF-Connecting-IP` (dùng cho chống spam và ghi nhận đăng ký).
+Thêm `--cloudflare-only` để tường lửa chỉ cho Cloudflare vào cổng 80/443 (chặn truy cập thẳng vào IP VPS).
 
 Script tự làm hết:
 
@@ -72,7 +81,7 @@ Script tự làm hết:
 5. **Sao lưu** database và ảnh tải lên lúc 3 giờ sáng hằng ngày vào `/var/backups/genzbaothe`, giữ 14 bản.
 6. Cài lệnh quản lý `genz`.
 
-Tham số: `--domain` (bắt buộc), `--email` (nhận thông báo HTTPS), `--branch` (mặc định `main`), `--token` (repo riêng tư), `--interval` (chu kỳ kiểm tra cập nhật, mặc định `2min`).
+Tham số: `--domain` (bắt buộc), `--cloudflare-token`, `--cloudflare-only`, `--email` (nhận thông báo HTTPS), `--branch` (mặc định `main`), `--token` (repo riêng tư), `--interval` (chu kỳ kiểm tra cập nhật, mặc định `2min`), `--free-ports` (tự tắt nginx/apache đang chiếm cổng 80/443; mặc định script dừng và báo).
 Chạy lại lệnh cài bất kỳ lúc nào cũng an toàn: dữ liệu và mật khẩu được giữ nguyên.
 
 ```
