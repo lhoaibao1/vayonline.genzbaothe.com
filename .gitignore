@@ -1,8 +1,9 @@
-/config.php
-/storage/*
-!/storage/.gitkeep
-!/storage/.htaccess
-/public/uploads/*
-!/public/uploads/.gitkeep
-!/public/uploads/.htaccess
+.env
 .DS_Store
+api/uploads/
+tracker/target/
+web/node_modules/
+web/.nuxt/
+web/.output/
+admin/node_modules/
+admin/dist/

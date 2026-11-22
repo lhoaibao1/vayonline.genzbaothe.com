@@ -1,0 +1,38 @@
+# Caddy: HTTPS tự động + chia đường dẫn cho từng service
+#   /api/*, /uploads/*  -> API Go
+#   /go/*, /t/*         -> tracker Rust
+#   /admin/*            -> CMS Vue (file tĩnh)
+#   còn lại             -> landing Nuxt
+{$SITE_DOMAIN} {
+	encode zstd gzip
+
+	handle /api/* {
+		reverse_proxy api:8080
+	}
+	handle /uploads/* {
+		reverse_proxy api:8080
+	}
+	handle /go/* {
+		reverse_proxy tracker:8081
+	}
+	handle /t/* {
+		reverse_proxy tracker:8081
+	}
+	redir /admin /admin/
+	handle /admin/* {
+		root * /srv
+		header /admin/assets/* Cache-Control "public, max-age=31536000, immutable"
+		try_files {path} /admin/index.html
+		file_server
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+}

@@ -1,0 +1,21 @@
+[package]
+name = "genz-tracker"
+version = "0.1.0"
+edition = "2021"
+description = "GenZbaothe.com: đếm lượt xem landing, ghi click và chuyển hướng sang link đối tác"
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal"] }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "postgres", "chrono", "macros"] }
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+url = "2"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+strip = true

@@ -1,0 +1,70 @@
+# GenZbaothe.com: chạy toàn bộ bằng một lệnh
+#   cp .env.example .env   (sửa SITE_DOMAIN, APP_KEY, POSTGRES_PASSWORD)
+#   docker compose up -d --build
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: genz
+      POSTGRES_USER: genz
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Đặt POSTGRES_PASSWORD trong .env}
+      TZ: Asia/Ho_Chi_Minh
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U genz -d genz"]
+      interval: 5s
+      retries: 20
+
+  api:
+    build: ./api
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      DATABASE_URL: postgres://genz:${POSTGRES_PASSWORD}@db:5432/genz?sslmode=disable
+      APP_KEY: ${APP_KEY:?Đặt APP_KEY trong .env (ít nhất 32 ký tự)}
+      COOKIE_SECURE: ${COOKIE_SECURE:-1}
+      SEED_DEMO: ${SEED_DEMO:-0}
+    volumes:
+      - uploads:/data/uploads
+
+  tracker:
+    build: ./tracker
+    restart: unless-stopped
+    depends_on:
+      api: { condition: service_started } # API tạo bảng trước
+    environment:
+      DATABASE_URL: postgres://genz:${POSTGRES_PASSWORD}@db:5432/genz
+      APP_KEY: ${APP_KEY}
+      HOME_URL: /
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    depends_on: [api]
+    environment:
+      NUXT_API_INTERNAL: http://api:8080
+      NUXT_TRACKER_INTERNAL: http://tracker:8081
+
+  caddy:
+    build:
+      context: .
+      dockerfile: deploy/Caddy.Dockerfile
+    restart: unless-stopped
+    depends_on: [api, tracker, web]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-localhost}
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:
+  uploads:
+  caddy_data:
+  caddy_config:

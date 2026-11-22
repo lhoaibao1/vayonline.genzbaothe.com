@@ -1,65 +1,84 @@
-# Vay Online – landing so sánh khoản vay & thẻ tín dụng + CMS
+# GenZbaothe.com
 
-Website giới thiệu khoản vay tiêu dùng và thẻ tín dụng (affiliate) kèm trang quản trị.
-Viết bằng PHP 8.1+ thuần và SQLite: không cần composer, không cần MySQL, chạy được trên hosting cPanel thông thường.
+Landing giới thiệu **khoản vay tiêu dùng** và **thẻ tín dụng** (affiliate) kèm CMS quản lý khách đăng ký.
+Hai module tách riêng: gói vay, gói thẻ, form đăng ký, danh sách khách và file xuất đều độc lập.
+
+| Thư mục | Công nghệ | Việc |
+|---|---|---|
+| `web/` | Vue 3 / **Nuxt 3** (render ở server) | Landing: trang chủ, `/khoan-vay`, `/the-tin-dung`, `/lp/{slug}`, `/uu-dai/{slug}` |
+| `admin/` | **Vue 3** + Vite (SPA) | CMS tại `/admin/` |
+| `api/` | **Go** 1.24 (net/http, pgx) | API công khai + API quản trị, đăng nhập, phân quyền |
+| `tracker/` | **Rust** (axum, sqlx) | Đếm lượt xem landing, ghi click, chuyển hướng `/go/{id}-{sig}` sang link đối tác |
+| `deploy/` | Caddy | HTTPS tự động, chia đường dẫn cho các service |
+| | **PostgreSQL** 16 | Dữ liệu |
+
+```
+Trình duyệt ──► Caddy ─┬─ /api/*, /uploads/* ──► api (Go) ─────┐
+                       ├─ /go/*, /t/*        ──► tracker (Rust) ┼─► PostgreSQL
+                       ├─ /admin/*           ──► file tĩnh CMS  │
+                       └─ còn lại            ──► web (Nuxt) ────┘ (gọi API qua mạng nội bộ)
+```
 
 ## Tính năng
 
-**Landing (khách xem)**
-- Công cụ tính khoản vay: kéo số tiền, chọn kỳ hạn → ước tính trả hằng tháng, tự đưa gói phù hợp lên đầu.
-- Bảng so sánh gói vay / thẻ (hạn mức, lãi suất, kỳ hạn hoặc phí thường niên, thời gian duyệt), lọc theo loại.
-- Trang chi tiết từng gói `/uu-dai/{slug}`.
-- Form đăng ký dạng popup (bottom sheet trên mobile): họ tên, SĐT, tỉnh/thành, thu nhập, số tiền.
-  Sau khi gửi, khách được chuyển sang link affiliate của đối tác qua `/di/...` (có ký HMAC, ghi nhận lượt bấm).
-- Nhiều landing page cho từng chiến dịch `/lp/{slug}`, mỗi trang có tiêu đề, bộ gói, SEO riêng.
-- Ghi nhận UTM (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`), trang giới thiệu, lượt xem landing.
-- Chống spam: honeypot, CSRF, giới hạn 15 đăng ký/giờ/IP, gộp đăng ký trùng (cùng SĐT + cùng gói trong 24h).
-- Bắn sự kiện `lead_submit` (GTM dataLayer) và `Lead` (Facebook Pixel) khi đăng ký thành công.
+**Landing**
+- Công cụ tính khoản vay: kéo số tiền, chọn kỳ hạn, xem tiền trả mỗi tháng; gói vay phù hợp tự lên đầu.
+- Khu **Khoản vay** và khu **Thẻ tín dụng** riêng, mỗi module có trang riêng.
+- Form đăng ký khác nhau theo module:
+  - Chung: họ tên, SĐT, năm sinh, tỉnh/thành, công việc, thu nhập.
+  - Vay: số tiền, kỳ hạn, mục đích vay, hình thức nhận lương.
+  - Thẻ: email, đã có thẻ tín dụng chưa, nhu cầu dùng thẻ.
+- Sau khi gửi, khách được chuyển qua tracker Rust sang link đối tác (có `{sub_id}` để đối soát).
+- Ghi nguồn UTM, trang giới thiệu, landing; chống spam (bẫy bot, giới hạn theo IP, gộp đăng ký trùng 24h).
+- Gửi sự kiện `lead_submit` (GTM) và `Lead` (Facebook Pixel). Mã theo dõi nhập trong CMS.
 
-**CMS `/admin`**
-- Tổng quan: đăng ký hôm nay / 7 / 30 / 90 ngày, tỉ lệ chuyển đổi theo landing, theo gói, theo nguồn UTM, biểu đồ theo ngày.
-- Khách đăng ký: lọc theo trạng thái, gói, loại, landing, nguồn, khoảng ngày; đổi trạng thái ngay trên bảng; thao tác hàng loạt; xuất CSV (mở được bằng Excel).
-- Khách hàng: gộp theo số điện thoại, xem **toàn bộ các gói một khách đã đăng ký**, landing và UTM của từng lần, ghi chú chăm sóc.
-- Gói vay & thẻ: thêm/sửa/ẩn/xoá, logo, link affiliate có biến `{sub_id}`, `{utm_source}`, `{utm_campaign}`, `{landing}`.
-- Landing page: tạo nhiều trang, chọn loại hoặc từng gói hiển thị, chọn trang chủ, xem lượt xem / đăng ký / tỉ lệ.
-- Tài khoản quản trị với 3 vai trò: Quản trị viên, Biên tập nội dung, Tư vấn/chăm sóc khách.
-- Cài đặt: tên site, hotline, Zalo, chân trang, miễn trừ trách nhiệm, FAQ, mã theo dõi head/body.
+**CMS**
+- Tổng quan tách 2 module: chờ xử lý, hôm nay, 7/30/90 ngày, tỉ lệ sang đối tác, được duyệt; biểu đồ theo ngày; theo landing; theo nguồn.
+- **Đăng ký vay** / **Đăng ký mở thẻ**: lọc theo trạng thái, gói, landing, nguồn, ngày; đổi trạng thái ngay trên bảng; thao tác hàng loạt; xuất CSV với cột riêng từng module.
+- Chi tiết từng đăng ký: toàn bộ thông tin khách điền lúc đăng ký, nguồn truy cập, ghi chú xử lý, các gói khác khách đã đăng ký.
+- Khách hàng gộp theo SĐT, xem mọi lần đăng ký vay và thẻ.
+- **Gói vay** / **Gói thẻ**: thêm, sửa, ẩn, xoá, logo, link affiliate.
+- Landing page, tài khoản quản trị (3 vai trò), cài đặt website.
 
-Trạng thái đăng ký: Mới → Đã liên hệ → Đã nộp hồ sơ → Được duyệt / Từ chối / Rác.
-
-## Chạy thử trên máy
+## Chạy bằng Docker
 
 ```bash
-php -S 127.0.0.1:8080 -t public public/index.php
+cp .env.example .env
 ```
 
-Mở http://127.0.0.1:8080 cho landing, http://127.0.0.1:8080/admin để tạo tài khoản quản trị đầu tiên.
-Lần chạy đầu hệ thống tự tạo `storage/database.sqlite` kèm 5 gói mẫu và 2 landing mẫu.
+Sửa `.env`: `SITE_DOMAIN`, `POSTGRES_PASSWORD`, `APP_KEY` (tạo bằng `openssl rand -hex 32`). Sau đó:
 
-## Triển khai lên hosting
-
-1. Upload toàn bộ thư mục. Tốt nhất trỏ **document root vào `public/`**.
-   Nếu hosting không cho đổi document root, file `.htaccess` ở thư mục gốc sẽ chuyển mọi request vào `public/` và chặn truy cập `app/`, `storage/`.
-2. Cấp quyền ghi cho `storage/` và `public/uploads/`.
-3. Truy cập `/admin` để tạo tài khoản quản trị (chỉ làm được khi chưa có tài khoản nào).
-   Hoặc tạo/đặt lại mật khẩu bằng dòng lệnh:
-   ```bash
-   php bin/create-admin.php email@domain.com "mat-khau-moi" "Ho ten"
-   ```
-4. Vào **Gói vay & thẻ**, thay nội dung mẫu, logo và link affiliate thật.
-5. Vào **Cài đặt website** dán mã GA/GTM/Pixel, hotline, Zalo.
-
-Nginx: dùng `root /đường-dẫn/public;` và `try_files $uri /index.php?$query_string;`, chặn thực thi PHP trong `/uploads`.
-
-Cấu hình tuỳ chọn: copy `config.example.php` thành `config.php`.
-
-## Cấu trúc
-
-```
-app/        bootstrap, DB + migration, controller site/admin, views
-public/     index.php (router), assets, uploads
-storage/    database.sqlite (không public)
-bin/        công cụ dòng lệnh
+```bash
+docker compose up -d --build
 ```
 
-Sao lưu: chỉ cần copy `storage/database.sqlite` và `public/uploads/`.
+Mở `https://{SITE_DOMAIN}/admin/` để tạo tài khoản quản trị đầu tiên, rồi vào **Gói vay** và **Gói thẻ** thay nội dung mẫu và link đối tác.
+
+## Chạy từng phần khi phát triển
+
+Cần Go 1.24, Rust 1.8x, Node 22, PostgreSQL 16.
+
+```bash
+cd api && APP_KEY=$(openssl rand -hex 32) COOKIE_SECURE=0 DATABASE_URL=postgres://genz:genz@localhost:5432/genz?sslmode=disable go run .
+```
+
+```bash
+cd tracker && APP_KEY=<cùng khoá> DATABASE_URL=postgres://genz:genz@localhost:5432/genz cargo run
+```
+
+```bash
+cd web && npm install && NUXT_PROXY_BACKENDS=true npm run dev
+```
+
+```bash
+cd admin && npm install && npm run dev
+```
+
+Landing ở http://localhost:3000, CMS ở http://localhost:5173/admin/. Đặt `SEED_DEMO=1` cho API để có dữ liệu minh hoạ (tài khoản `demo@genzbaothe.com` / `demo12345`).
+
+## Ghi chú kỹ thuật
+
+- Bảng được tạo tự động khi API khởi động (`api/migrations/*.sql`).
+- Link `/go/{id}-{sig}`: API Go ký bằng HMAC-SHA256 với `APP_KEY`, tracker Rust kiểm tra lại bằng cùng khoá. Hai service phải dùng chung `APP_KEY`.
+- API quản trị dùng cookie phiên `HttpOnly`; mọi yêu cầu thay đổi dữ liệu phải có header `X-Requested-With` để chặn CSRF.
+- Sao lưu: database PostgreSQL và volume `uploads`.
