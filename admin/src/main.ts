@@ -1,13 +1,15 @@
 import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import { api, can, loadSession } from './api'
 import './admin.css'
 
+declare const __DEMO__: boolean
+
 const v = (name: string) => () => import(`./views/${name}.vue`)
 
 const router = createRouter({
-  history: createWebHistory('/admin/'),
+  history: __DEMO__ ? createWebHashHistory() : createWebHistory('/admin/'),
   routes: [
     { path: '/login', component: v('Login'), meta: { public: true, title: 'Đăng nhập' } },
     { path: '/setup', component: v('Setup'), meta: { public: true, title: 'Tạo tài khoản quản trị' } },

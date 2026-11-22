@@ -3,6 +3,8 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api, can, session, toast, ui } from './api'
 
+declare const __DEMO__: boolean
+const demo = __DEMO__
 const route = useRoute()
 const router = useRouter()
 const navOpen = ref(false)
@@ -67,7 +69,7 @@ async function logout() {
         </template>
       </nav>
       <div class="side__foot">
-        <a href="/" target="_blank" rel="noopener">Xem website</a>
+        <a :href="demo ? '../index.html' : '/'" :target="demo ? undefined : '_blank'" rel="noopener">Xem website</a>
         <RouterLink to="/profile">{{ session.me.admin.name }} · {{ session.me.role_label }}</RouterLink>
         <button type="button" @click="logout">Đăng xuất</button>
       </div>

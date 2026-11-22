@@ -82,3 +82,15 @@ Landing ở http://localhost:3000, CMS ở http://localhost:5173/admin/. Đặt 
 - Link `/go/{id}-{sig}`: API Go ký bằng HMAC-SHA256 với `APP_KEY`, tracker Rust kiểm tra lại bằng cùng khoá. Hai service phải dùng chung `APP_KEY`.
 - API quản trị dùng cookie phiên `HttpOnly`; mọi yêu cầu thay đổi dữ liệu phải có header `X-Requested-With` để chặn CSRF.
 - Sao lưu: database PostgreSQL và volume `uploads`.
+
+## Bản demo tĩnh
+
+Thư mục `demo/` dựng bản xem thử không cần server: landing và CMS chạy với API giả lập (`demo/shim.js`) và dữ liệu mẫu ghi từ API thật (`demo/fixtures.json`).
+
+```bash
+python3 demo/record.py http://127.0.0.1:8080 demo@genzbaothe.com demo12345
+```
+
+```bash
+(cd web && DEMO=1 npx nuxi generate) && (cd admin && DEMO=1 npx vite build) && python3 demo/build.py /tmp/genz-demo
+```
