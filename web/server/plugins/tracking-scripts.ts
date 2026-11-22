@@ -1,5 +1,5 @@
-// Chèn mã theo dõi (GA, GTM, Pixel…) nhập trong CMS vào <head> và cuối <body>.
-// Lấy từ API, giữ trong bộ nhớ 60 giây.
+// Mã theo dõi (GA, GTM, Pixel…) nhập trong CMS KHÔNG được chèn thẳng vào trang.
+// Server chỉ gửi kèm dưới dạng dữ liệu; banner cookie chạy chúng sau khi khách đồng ý.
 let cache: { at: number; head: string; body: string } | null = null
 
 async function scripts(apiBase: string) {
@@ -16,7 +16,9 @@ async function scripts(apiBase: string) {
 export default defineNitroPlugin((nitro) => {
   nitro.hooks.hook('render:html', async (html, { event }) => {
     const s = await scripts(useRuntimeConfig(event).apiInternal)
-    if (s.head) html.head.push(s.head)
-    if (s.body) html.bodyAppend.push(s.body)
+    if (!s.head && !s.body) return
+    // Escape "<" để chuỗi không thể đóng thẻ <script> sớm
+    const data = JSON.stringify({ head: s.head, body: s.body }).replace(/</g, '\\u003c')
+    html.head.push(`<script>window.__GZ_TRACKING__=${data}</script>`)
   })
 })

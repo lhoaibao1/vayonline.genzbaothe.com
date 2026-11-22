@@ -45,9 +45,47 @@ Trình duyệt ──► Caddy ─┬─ /api/*, /uploads/* ──► api (Go) �
 - Form đăng ký có ô đồng ý **không tick sẵn**, liên kết tới 3 chính sách. Mỗi đăng ký lưu thời điểm đồng ý và phiên bản chính sách khách đã đồng ý (sửa nội dung chính sách thì phiên bản tự tăng).
 - Trang `/yeu-cau-du-lieu`: khách yêu cầu xem, sửa, xoá dữ liệu, rút lại đồng ý. CMS mục *Yêu cầu dữ liệu* để xử lý, ghi người xử lý.
 - **Ẩn danh hoá** dữ liệu một khách (xoá tên, SĐT, email, IP trên hồ sơ và mọi đăng ký) nhưng giữ số liệu thống kê.
+- **Banner đồng ý cookie**: mã theo dõi nhập trong CMS (GA, GTM, Facebook/TikTok Pixel) chỉ chạy sau khi khách đồng ý nhóm "Đo lường & quảng cáo". Khách đổi lựa chọn qua nút *Cài đặt cookie* ở chân trang.
 - Nội dung chính sách là bản mẫu, cần luật sư rà soát trước khi chạy thật.
 
-## Chạy bằng Docker
+## Cài lên VPS bằng một lệnh
+
+VPS Ubuntu 22.04/24.04 hoặc Debian 12, tối thiểu 1 vCPU, 1GB RAM (script tự tạo swap), 20GB ổ đĩa.
+Trỏ bản ghi A của tên miền về IP VPS, rồi SSH vào VPS và chạy:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lhoaibao1/vayonline.genzbaothe.com/main/deploy/install.sh | sudo bash -s -- --domain genzbaothe.com
+```
+
+Repo riêng tư: tạo GitHub token chỉ có quyền đọc nội dung repo (Fine-grained token → Contents: Read-only), rồi chạy:
+
+```bash
+curl -fsSL -H "Authorization: Bearer TOKEN" https://raw.githubusercontent.com/lhoaibao1/vayonline.genzbaothe.com/main/deploy/install.sh | sudo bash -s -- --domain genzbaothe.com --token TOKEN
+```
+
+Script tự làm hết:
+
+1. Cài Docker, Git, tường lửa (chỉ mở SSH, 80, 443); tạo swap nếu RAM ít.
+2. Tải code, tự sinh mật khẩu database và `APP_KEY` vào `/opt/genzbaothe/.env`.
+3. Build và chạy Postgres, API Go, tracker Rust, landing Nuxt, CMS Vue, Caddy (HTTPS Let's Encrypt tự động).
+4. **Tự cập nhật**: cứ 2 phút kiểm tra nhánh git; có commit mới thì tự tải, build và chạy lại. Build lỗi thì website giữ bản cũ và chờ commit sửa lỗi.
+5. **Sao lưu** database và ảnh tải lên lúc 3 giờ sáng hằng ngày vào `/var/backups/genzbaothe`, giữ 14 bản.
+6. Cài lệnh quản lý `genz`.
+
+Tham số: `--domain` (bắt buộc), `--email` (nhận thông báo HTTPS), `--branch` (mặc định `main`), `--token` (repo riêng tư), `--interval` (chu kỳ kiểm tra cập nhật, mặc định `2min`).
+Chạy lại lệnh cài bất kỳ lúc nào cũng an toàn: dữ liệu và mật khẩu được giữ nguyên.
+
+```
+genz status            Xem dịch vụ và bản code đang chạy
+genz logs [dịch vụ]    Xem log (api, web, tracker, caddy, db)
+genz update            Cập nhật ngay
+genz update-log        Lịch sử tự cập nhật
+genz backup            Sao lưu ngay
+genz restore <file>    Khôi phục database
+genz restart [dịch vụ] Khởi động lại
+```
+
+## Chạy bằng Docker (thủ công)
 
 ```bash
 cp .env.example .env

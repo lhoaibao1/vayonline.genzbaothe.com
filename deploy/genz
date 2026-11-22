@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Lệnh quản lý GenZbaothe.com trên VPS
+set -euo pipefail
+. /etc/genzbaothe/genz.conf
+cd "$DIR"
+
+case "${1:-help}" in
+  status)
+    docker compose ps --format 'table {{.Service}}\t{{.Status}}'
+    echo; echo "Bản đang chạy: $(git log -1 --format='%h %s (%cr)')"
+    echo "Lần kiểm tra cập nhật kế tiếp:"; systemctl list-timers genz-update.timer --no-pager | sed -n '2p'
+    ;;
+  logs)    docker compose logs -f --tail=200 ${2:-} ;;
+  update)  genz-update --force ;;
+  update-log) journalctl -u genz-update.service -n 100 --no-pager ;;
+  backup)  genz-backup ;;
+  restart) docker compose restart ${2:-} ;;
+  restore)
+    [ -n "${2:-}" ] || { echo "Dùng: genz restore /var/backups/genzbaothe/db-YYYYmmdd-HHMM.sql.gz"; exit 1; }
+    read -r -p "Ghi đè toàn bộ database bằng $2? Gõ 'dong y' để tiếp tục: " ok
+    [ "$ok" = "dong y" ] || { echo "Đã huỷ."; exit 1; }
+    docker compose stop api tracker web
+    docker compose exec -T db psql -U genz -d postgres -c "DROP DATABASE IF EXISTS genz WITH (FORCE);" -c "CREATE DATABASE genz OWNER genz;"
+    gunzip -c "$2" | docker compose exec -T db psql -q -U genz -d genz
+    docker compose start api tracker web
+    echo "Đã khôi phục từ $2"
+    ;;
+  *)
+    echo "genz status            Xem các dịch vụ và bản code đang chạy"
+    echo "genz logs [dịch vụ]    Xem log (api, web, tracker, caddy, db)"
+    echo "genz update            Cập nhật ngay, không chờ lịch tự động"
+    echo "genz update-log        Xem lịch sử tự cập nhật"
+    echo "genz backup            Sao lưu ngay"
+    echo "genz restore <file>    Khôi phục database từ bản sao lưu"
+    echo "genz restart [dịch vụ] Khởi động lại"
+    ;;
+esac

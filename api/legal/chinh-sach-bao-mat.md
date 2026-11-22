@@ -60,7 +60,10 @@ Không có hệ thống nào an toàn tuyệt đối. Nếu xảy ra sự cố l
 
 ## 6. Cookie
 
-Cookie giúp website ghi nhớ nguồn truy cập và đo lường hiệu quả quảng cáo. Bạn có thể chặn hoặc xoá cookie trong cài đặt trình duyệt; website vẫn dùng được nhưng một số số liệu thống kê có thể không chính xác.
+- **Cookie cần thiết** (luôn bật): ghi nhớ lựa chọn cookie của bạn, nguồn quảng cáo đưa bạn đến website, chống spam form đăng ký.
+- **Cookie đo lường & quảng cáo** (chỉ khi bạn đồng ý): Google Analytics, Google Tag Manager, Facebook Pixel, TikTok Pixel và công cụ tương tự, dùng để đo hiệu quả quảng cáo.
+
+Lần đầu truy cập, website hỏi ý kiến bạn qua banner cookie. Bạn có thể đổi lựa chọn bất kỳ lúc nào bằng nút **Cài đặt cookie** ở chân trang, hoặc xoá cookie trong cài đặt trình duyệt.
 
 ## 7. Người dưới 18 tuổi
 

@@ -311,3 +311,21 @@ mark.todo { background: #ffe0e8; color: var(--danger); padding: 0 4px; border-ra
 .footer__links a:hover { text-decoration: underline; color: var(--lemon); }
 .check a { color: var(--violet); font-weight: 700; }
 .check.has-err span { color: var(--danger); }
+
+/* Banner đồng ý cookie */
+.cookie { position: fixed; z-index: 60; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); display: flex; justify-content: center; pointer-events: none; }
+.cookie__in { pointer-events: auto; width: min(760px, 100%); background: var(--white); border: 2px solid var(--ink); border-radius: var(--r-xl); box-shadow: 6px 6px 0 var(--ink); padding: 20px 22px; display: grid; gap: 14px; }
+.cookie h2 { font-size: 18px; font-weight: 900; margin-bottom: 4px; }
+.cookie__text p { font-size: 14px; color: var(--ink-2); }
+.cookie__text a { font-weight: 700; }
+.cookie__btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.cookie__btns .btn { min-height: 44px; }
+.cookie__link { border: 0; background: none; font: 700 14px var(--font); color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 8px 6px; }
+.cookie__detail { display: grid; gap: 8px; }
+.cookie__opt { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--r); background: var(--bg); font-size: 14px; cursor: pointer; }
+.cookie__opt input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--violet); flex: none; }
+.cookie-enter-active, .cookie-leave-active { transition: transform .25s ease, opacity .25s ease; }
+.cookie-enter-from, .cookie-leave-to { transform: translateY(24px); opacity: 0; }
+@media (max-width: 600px) { .cookie { left: 8px; right: 8px; bottom: 8px; } .cookie__in { padding: 16px; box-shadow: 4px 4px 0 var(--ink); } .cookie__btns .btn { flex: 1 1 140px; } }
+.footer__btn { border: 0; background: none; color: var(--white); font: 600 14px var(--font); padding: 0; cursor: pointer; }
+.footer__btn:hover { text-decoration: underline; color: var(--lemon); }

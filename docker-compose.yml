@@ -1,6 +1,6 @@
 # GenZbaothe.com: chạy toàn bộ bằng một lệnh
-#   cp .env.example .env   (sửa SITE_DOMAIN, APP_KEY, POSTGRES_PASSWORD)
-#   docker compose up -d --build
+#   Cách nhanh nhất: chạy deploy/install.sh trên VPS (xem README).
+#   Thủ công: cp .env.example .env (sửa SITE_DOMAIN, APP_KEY, POSTGRES_PASSWORD) rồi docker compose up -d --build
 services:
   db:
     image: postgres:16-alpine
@@ -59,6 +59,7 @@ services:
       - "443:443"
     environment:
       SITE_DOMAIN: ${SITE_DOMAIN:-localhost}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
     volumes:
       - caddy_data:/data
       - caddy_config:/config

@@ -2,6 +2,7 @@
 const { data: site } = await useSite()
 const tel = computed(() => (site.value?.hotline || '').replace(/\D/g, ''))
 const zalo = computed(() => (site.value?.zalo || '').replace(/\D/g, ''))
+const cookieOpen = useState('cookie-banner-open', () => false)
 </script>
 
 <template>
@@ -42,6 +43,7 @@ const zalo = computed(() => (site.value?.zalo || '').replace(/\D/g, ''))
       <nav class="wrap footer__links" aria-label="Chính sách">
         <NuxtLink v-for="p in site?.pages" :key="p.slug" :to="`/${p.slug}`">{{ p.title }}</NuxtLink>
         <NuxtLink to="/yeu-cau-du-lieu">Yêu cầu về dữ liệu cá nhân</NuxtLink>
+        <button type="button" class="footer__btn" @click="cookieOpen = true">Cài đặt cookie</button>
       </nav>
       <div class="wrap footer__legal">
         <p>{{ site?.disclaimer }}</p>
@@ -53,5 +55,6 @@ const zalo = computed(() => (site.value?.zalo || '').replace(/\D/g, ''))
     </footer>
 
     <RegisterSheet />
+    <ClientOnly><CookieBanner /></ClientOnly>
   </div>
 </template>

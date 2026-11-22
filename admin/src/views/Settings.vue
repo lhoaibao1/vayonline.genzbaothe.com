@@ -58,7 +58,7 @@ async function save() {
           <h2 class="card__t">Mã theo dõi</h2>
           <label class="f"><span>Chèn vào &lt;head&gt; (Google Analytics, GTM, Facebook Pixel, TikTok Pixel…)</span><textarea v-model="s.head_scripts" rows="7" class="mono" /></label>
           <label class="f"><span>Chèn cuối &lt;body&gt;</span><textarea v-model="s.body_scripts" rows="4" class="mono" /></label>
-          <p class="hint">Khi khách gửi đăng ký thành công, website gửi sự kiện <code>lead_submit</code> (kèm <code>offer_type</code> là loan hoặc card) vào dataLayer và sự kiện <code>Lead</code> cho Facebook Pixel nếu có.</p>
+          <p class="hint">Các mã này chỉ chạy khi khách bấm đồng ý ở banner cookie (nhóm đo lường &amp; quảng cáo). Khi khách gửi đăng ký thành công, website gửi sự kiện <code>lead_submit</code> (kèm <code>offer_type</code> là loan hoặc card) vào dataLayer và sự kiện <code>Lead</code> cho Facebook Pixel nếu có.</p>
           <button class="b b--primary b--block" type="submit">Lưu cài đặt</button>
         </section>
       </div>
